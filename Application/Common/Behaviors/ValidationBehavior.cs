@@ -13,37 +13,36 @@ namespace Application.Common.Behaviors
         {
             _validators = validators;
         }
-        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(
+            TRequest request,
+            RequestHandlerDelegate<TResponse> next,
+            CancellationToken cancellationToken
+        )
         {
-            if (_validators.Any())
-            {
-                var context = new ValidationContext<TRequest>(request);
-                var validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
-                var failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null);
+            if (!_validators.Any())
+                return await next();
 
-                if (failures.Any())
-                {
-                    var errorMessage = failures.First().ErrorMessage;
-                    
-                    var responseType = typeof(TResponse);
+            var context = new ValidationContext<TRequest>(request);
+            var validationResults = await Task.WhenAll(
+                _validators.Select(v => v.ValidateAsync(context, cancellationToken))
+            );
 
-                    if (responseType.IsGenericType && responseType.GetGenericTypeDefinition() == typeof(Result<>))
-                    {
-                        var valueType = responseType.GenericTypeArguments[0];
-                        var failedMethod = typeof(Result<>)
-                            .MakeGenericType(valueType)
-                            .GetMethod(nameof(Result<object>.Failed), new[] { typeof(ErrorCode), typeof(string) });
+            var failures = validationResults
+                .SelectMany(r => r.Errors)
+                .Where(f => f != null)
+                .ToList();
 
-                        var failedResult = failedMethod!.Invoke(null, new object[] { ErrorCode.BadRequest, errorMessage });
+            if (!failures.Any())
+                return await next();
 
-                        return (TResponse)failedResult!;
-                    }
+            var firstError = failures.First();
+            var errorCode = firstError.CustomState as ErrorCode?
+                ?? ErrorCode.BadRequest;
 
-                    return (TResponse)(object)Result.Failed(ErrorCode.BadRequest, errorMessage);
-                }
-            }
+            string errorMessage = firstError.ErrorMessage;
 
-            return await next();
+            var responseResult = Result.Failed(errorCode, errorMessage);
+            return (TResponse)(object)responseResult;
         }
     }
 }
