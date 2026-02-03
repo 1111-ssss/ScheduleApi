@@ -3,12 +3,9 @@ using Domain.Abstractions.Result;
 using Domain.Entities;
 using Infrastructure.Abstractions.Interfaces.Auth;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Infrastructure.Services.Auth;
@@ -42,7 +39,8 @@ public class JwtGenerator : IJwtGenerator
             signingCredentials: creds
         );
 
-        return Result<AuthResponse>.Success(new AuthResponse {
+        return Result<AuthResponse>.Success(new AuthResponse
+        {
             JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
             ExpiresAt = DateTime.UtcNow.AddMinutes(
                 (token.ValidTo - token.ValidFrom).TotalMinutes
