@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Application.Features.Auth.Login;
-using Microsoft.AspNetCore.Identity.Data;
 
 namespace API.Controllers
 {
@@ -22,11 +21,6 @@ namespace API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginUserCommand command)
         {
             var result = await _mediator.Send(command);
-
-            if (result.IsSuccess)
-            {
-                return Ok(result.Value);
-            }
 
             return result.ToActionResult();
         }
