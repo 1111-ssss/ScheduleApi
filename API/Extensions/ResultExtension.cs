@@ -17,10 +17,10 @@ public static class ResultExtensions
 
         return statusCode switch
         {
-            400 => new BadRequestObjectResult(new { error = statusCodeName, message = resultMessage }),
-            401 => new UnauthorizedObjectResult(new { error = statusCodeName, message = resultMessage }),
-            404 => new NotFoundObjectResult(new { error = statusCodeName, message = resultMessage }),
-            409 => new ConflictObjectResult(new { error = statusCodeName, message = resultMessage }),
+            400 => new BadRequestObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
+            401 => new UnauthorizedObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
+            404 => new NotFoundObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
+            409 => new ConflictObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
             _ => new ObjectResult(new { error = resultMessage }) { StatusCode = statusCode },
         };
     }
