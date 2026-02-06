@@ -1,5 +1,3 @@
-using Application.Features.Auth.Login;
-using Domain.Abstractions.Result;
 using Domain.Entities;
 using Infrastructure.Abstractions.Interfaces.Auth;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +17,7 @@ public class JwtGenerator : IJwtGenerator
         _config = config;
         _key = _config["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key пустой в конфигурации");
     }
-    public Result<AuthResponse> GenerateToken(User user)
+    public string? GenerateToken(User user)
     {
         var claims = new[]
         {
@@ -39,10 +37,6 @@ public class JwtGenerator : IJwtGenerator
             signingCredentials: creds
         );
 
-        return Result<AuthResponse>.Success(new AuthResponse
-        {
-            JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
-            ExpiresAt = token.ValidTo
-        });
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
