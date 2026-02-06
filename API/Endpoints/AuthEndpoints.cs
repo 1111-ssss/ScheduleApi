@@ -16,12 +16,13 @@ public static class AuthEndpoints
 
         return group;
     }
-    private static async Task<IActionResult> LoginAsync(
+    private static async Task<IResult> LoginAsync(
         [FromServices] IMediator _mediator,
         [FromBody] LoginUserCommand command
     )
     {
         var result = await _mediator.Send(command);
-        return result.ToActionResult();
+
+        return result.ToApiResult();
     }
 }

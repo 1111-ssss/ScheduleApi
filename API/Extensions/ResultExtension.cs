@@ -1,35 +1,39 @@
-using Microsoft.AspNetCore.Mvc;
 using Domain.Abstractions.Result;
 
 public static class ResultExtensions
 {
-    public static IActionResult ToActionResult(this IResultBase result)
+    public static IResult ToApiResult(this IResultBase result)
     {
         if (result.IsSuccess)
-            return new OkObjectResult(null);
+            return Results.Ok();
             
         if (!result.Error.HasValue)
-            return new BadRequestObjectResult(new { error = result.Message ?? "NoErrorCode" });
+            return Results.BadRequest(new { message = result.Message ?? "Unknown error" });
 
         int statusCode = HttpStatusCodeAttribute.GetHttpStatusCode(result.Error.Value);
-        string statusCodeName = Enum.GetName(typeof(ErrorCode), result.Error.Value) ?? "Unknown";
-        string? resultMessage = result.Message;
+        var body = new
+        {
+            error = Enum.GetName(typeof(ErrorCode), result.Error.Value) ?? "Unknown",
+            message = result.Message,
+            details = result.Details
+        };
 
         return statusCode switch
         {
-            400 => new BadRequestObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
-            401 => new UnauthorizedObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
-            404 => new NotFoundObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
-            409 => new ConflictObjectResult(new { error = statusCodeName, message = resultMessage, details = result.Details }),
-            _ => new ObjectResult(new { error = resultMessage }) { StatusCode = statusCode },
+            400 => Results.BadRequest(body),
+            401 => Results.Json(body, statusCode: statusCode),
+            403 => Results.Json(body, statusCode: statusCode),
+            404 => Results.NotFound(body),
+            409 => Results.Conflict(body),
+            _ => Results.Json(body, statusCode: statusCode),
         };
     }
 
-    public static IActionResult ToActionResult<T>(this Result<T> result)
+    public static IResult ToApiResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
-            return new OkObjectResult(result.Value);
+            return Results.Ok(result.Value);
 
-        return ((IResultBase)result).ToActionResult();
+        return ((IResultBase)result).ToApiResult();
     }
 }
