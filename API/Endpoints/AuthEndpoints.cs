@@ -12,7 +12,14 @@ public static class AuthEndpoints
             .WithTags("Аутентификация");
             // .MapSwagger();
 
-        group.MapPost("/login", LoginAsync);
+        group.MapPost("/login", LoginAsync)
+            .WithName("Login")
+            .WithSummary("Вход в систему")
+            .WithDescription("Позволяет пользователю войти в систему, предоставив имя пользователя и пароль. В случае успешной аутентификации возвращает JWT-токен для доступа к защищенным ресурсам API.")
+            .Accepts<LoginUserCommand>("application/json")
+            .Produces<AuthResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status500InternalServerError);
 
         return group;
     }

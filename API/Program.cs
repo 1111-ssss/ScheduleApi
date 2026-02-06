@@ -1,4 +1,3 @@
-using API.Endpoints;
 using API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +18,7 @@ var app = builder.Build();
 
 app.UseCustomMiddleware();
 
+//Endpoints
 app.MapCustomRoutes();
 
 app.Run();
