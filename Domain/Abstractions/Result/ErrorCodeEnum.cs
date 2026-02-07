@@ -15,12 +15,14 @@ public enum ErrorCode
     InvalidUsernameOrPassword,
     [HttpStatusCode(400)]
     InvalidPagination,
-    [HttpStatusCode(400)]
-    InvalidToken,
 
     //Ошибки авторизации (401 Unauthorized)
     [HttpStatusCode(401)]
     Unauthorized,
+    [HttpStatusCode(401)]
+    TokenExpired,
+    [HttpStatusCode(401)]
+    InvalidToken,
 
     //Нет доступа (403 Forbidden)
     [HttpStatusCode(403)]
