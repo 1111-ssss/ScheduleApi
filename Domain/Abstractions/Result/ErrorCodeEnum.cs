@@ -15,6 +15,8 @@ public enum ErrorCode
     InvalidUsernameOrPassword,
     [HttpStatusCode(400)]
     InvalidPagination,
+    [HttpStatusCode(400)]
+    InvalidToken,
 
     //Ошибки авторизации (401 Unauthorized)
     [HttpStatusCode(401)]
