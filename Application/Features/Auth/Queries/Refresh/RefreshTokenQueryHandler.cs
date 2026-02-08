@@ -28,11 +28,18 @@ public class RefreshTokenQueryHandler : IRequestHandler<RefreshTokenQuery, Resul
         if (DateTime.UtcNow > _currentUserService.ExpiresAt)
             return Result.Failed(ErrorCode.TokenExpired);
 
-        // var newJwtToken = _jwtGenerator.GenerateToken();
-        throw new NotImplementedException();
+        var currentToken = _currentUserService.TokenDTO;
+        if (currentToken == null)
+            return Result.Failed(ErrorCode.InvalidToken);
 
-        // return Result<AuthResponse>.Success(new AuthResponse(
-        //     JwtToken: _currentUserService.JwtToken ?? string.Empty
-        // ));
+        var newJwtToken = _jwtGenerator.GenerateToken(
+            currentToken
+        );
+        if (string.IsNullOrEmpty(newJwtToken))
+            return Result<AuthResponse>.Failed(ErrorCode.TokenGenerationError);
+
+        return Result<AuthResponse>.Success(new AuthResponse(
+            JwtToken: newJwtToken
+        ));
     }
 }
