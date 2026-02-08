@@ -5,14 +5,20 @@ public class User
     public int Id { get; set; }
     public string Username { get; set; } = default!;
     public string PasswordHash { get; set; } = default!;
+    public string Role { get; set; } = default!;
 
     private User() { }
-    public static User Create(string username, string password)
+    public static User Create(
+        string username,
+        string password,
+        string role
+    )
     {
         return new User
         {
             Username = username,
-            PasswordHash = password
+            PasswordHash = password,
+            Role = role
         };
     }
 }

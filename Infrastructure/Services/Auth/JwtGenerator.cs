@@ -22,6 +22,8 @@ public class JwtGenerator : IJwtGenerator
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+            new Claim(ClaimTypes.Role, user.Role)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
@@ -30,7 +32,7 @@ public class JwtGenerator : IJwtGenerator
         var token = new JwtSecurityToken(
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(
-                int.Parse(_config["Jwt:Expires"] ?? "15")
+                int.Parse(_config["Jwt:Expires"] ?? "30")
             ),
             audience: _config["Jwt:Audience"],
             issuer: _config["Jwt:Issuer"],
